@@ -1,15 +1,25 @@
 const { app, BrowserWindow, webContents, ipcMain } = require('electron')
-const actions = require('./actions')
+const fs =  require('fs').promises
 const { createStore, applyMiddleware } = require('redux')
 const thunk = require('redux-thunk').default
 
-const { reducer, initDate } = require('./reduer')
+const { reducer, initDate } = require('./reducer')
+const actions = require('./actions')
+
+async function getAllActions(){
+  const fileList = await fs.readdir("./plugins")
+
+  fileList.map(i=>{
+    require(path.resolve(i,''))
+  })
+}
+
 
 let windows
 
 function createWindow() {
 
-  windows = new Array(1).fill({ width: 800, height: 600 }).map(i => new BrowserWindow(i))
+  windows = new Array(3).fill({ width: 800, height: 600 }).map(i => new BrowserWindow(i))
 
   windows.forEach(i => {
     i.loadFile('index.html')

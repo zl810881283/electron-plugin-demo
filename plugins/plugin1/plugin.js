@@ -1,10 +1,6 @@
 module.exports = {
-  view: {
     position: [2],
-    entry: 'dict/index.js'
-  },
-  logic:{
-    actions: 'dict/actions.js',
-    
-  }
+    entry: './dict/index.js',
+    actions: './actions.js',
+    reducer: './reducer.js',
 }
