@@ -1,50 +1,48 @@
-// Modules to control application life and create native browser window
-const {app, BrowserWindow} = require('electron')
+const { app, BrowserWindow, webContents, ipcMain } = require('electron')
+const actions = require('./actions')
+const { createStore, applyMiddleware } = require('redux')
+const thunk = require('redux-thunk').default
 
-// Keep a global reference of the window object, if you don't, the window will
-// be closed automatically when the JavaScript object is garbage collected.
-let mainWindow
+const { reducer, initDate } = require('./reduer')
 
-function createWindow () {
-  // Create the browser window.
-  mainWindow = new BrowserWindow({width: 800, height: 600})
+let windows
 
-  // and load the index.html of the app.
-  mainWindow.loadFile('index.html')
+function createWindow() {
 
-  // Open the DevTools.
-  // mainWindow.webContents.openDevTools()
+  windows = new Array(1).fill({ width: 800, height: 600 }).map(i => new BrowserWindow(i))
 
-  // Emitted when the window is closed.
-  mainWindow.on('closed', function () {
-    // Dereference the window object, usually you would store windows
-    // in an array if your app supports multi windows, this is the time
-    // when you should delete the corresponding element.
-    mainWindow = null
+  windows.forEach(i => {
+    i.loadFile('index.html')
+    i.webContents.openDevTools()
+    i.on('close', () => {
+      windows = windows.filter(t => t != i)
+    })
   })
-}
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
+}
 app.on('ready', createWindow)
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function () {
-  // On OS X it is common for applications and their menu bar
-  // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
+  app.quit()
 })
 
-app.on('activate', function () {
-  // On OS X it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
-  if (mainWindow === null) {
-    createWindow()
-  }
-})
+function notifyChildren(data) {
+  const time = new Date()
+  const code = `update(${JSON.stringify({ data, date: +new Date(), array: new Array(100 * 1024).fill(0) })})`
+  console.log(new Date() - time)
+  windows.forEach(win => {
+    win.webContents.executeJavaScript(code)
+  })
+}
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
+let store = createStore(reducer, initDate, applyMiddleware(thunk))
+
+
+
+store.subscribe(() => {
+  notifyChildren(store.getState())
+})
+ipcMain.on('action', (event, name, ...args) => {
+  store.dispatch(actions[name](...args))
+})
