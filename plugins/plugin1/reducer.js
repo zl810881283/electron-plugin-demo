@@ -1,10 +1,7 @@
-const initDate = exports.initDate = { data: "" }
+const initDate = exports.initDate = { dataFromPlugin: "" }
 
-exports.reducer = function (state = initDate, action) {
-  switch (action.type) {
-    case "ACTION_FROM_PLUGIN":
-      return { ...state, data: action.payload }
-    default:
-      return { ...state }
+exports.handlers = {
+  ["ACTION_FROM_PLUGIN"](stata,action){
+    return {...stata,dataFromPlugin:action.payload}
   }
 }

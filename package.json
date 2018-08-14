@@ -4,7 +4,8 @@
   "description": "A minimal Electron application",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "debug": "electron . --inspect-brk"
   },
   "repository": "https://github.com/electron/electron-quick-start",
   "keywords": [
@@ -20,6 +21,7 @@
     "electron": "^2.0.0"
   },
   "dependencies": {
+    "fs-extra": "^7.0.0",
     "redux": "^4.0.0",
     "redux-thunk": "^2.3.0"
   }
